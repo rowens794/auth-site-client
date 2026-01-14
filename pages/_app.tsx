@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Script from "next/script";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -14,13 +14,22 @@ declare global {
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const ga4Id = pageProps.site?.analyticsIds?.ga4;
+  const ga4IdRef = useRef(ga4Id);
+
+  // Keep ref updated
+  useEffect(() => {
+    ga4IdRef.current = ga4Id;
+  }, [ga4Id]);
 
   useEffect(() => {
-    if (!ga4Id) return;
-
     const handleRouteChange = (url: string) => {
-      window.gtag("config", ga4Id, {
+      const id = ga4IdRef.current;
+      if (!id || typeof window.gtag !== "function") return;
+
+      window.gtag("event", "page_view", {
         page_path: url,
+        page_title: document.title,
+        send_to: id,
       });
     };
 
@@ -28,7 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => {
       router.events.off("routeChangeComplete", handleRouteChange);
     };
-  }, [router.events, ga4Id]);
+  }, [router.events]);
 
   return (
     <>
@@ -43,7 +52,7 @@ export default function App({ Component, pageProps }: AppProps) {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', '${ga4Id}');
+              gtag('config', '${ga4Id}', { send_page_view: true });
             `}
           </Script>
         </>

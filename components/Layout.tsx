@@ -43,8 +43,6 @@ export const Layout: React.FC<LayoutProps> = ({
     site?.tagline ||
     "Expert reviews and trusted recommendations.";
 
-  const ga4Id = site?.analyticsIds?.ga4;
-
   return (
     <div
       className="min-h-screen flex flex-col selection:bg-primary selection:text-white"
@@ -71,25 +69,6 @@ export const Layout: React.FC<LayoutProps> = ({
             href={`https://fonts.googleapis.com/css2?family=${bodyFont.replace(/ /g, "+")}:wght@400;500;600;700&display=swap`}
             rel="stylesheet"
           />
-        )}
-        {/* Google Analytics */}
-        {ga4Id && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${ga4Id}');
-                `,
-              }}
-            />
-          </>
         )}
       </Head>
 

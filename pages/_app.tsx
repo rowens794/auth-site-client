@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import Script from "next/script";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
+import { setupAmazonClickTracking } from "../lib/analytics";
 
 declare global {
   interface Window {
@@ -38,6 +39,11 @@ export default function App({ Component, pageProps }: AppProps) {
       router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
+
+  // Track Amazon affiliate link clicks
+  useEffect(() => {
+    return setupAmazonClickTracking(() => router.asPath);
+  }, [router.asPath]);
 
   return (
     <>

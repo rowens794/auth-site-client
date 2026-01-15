@@ -52,6 +52,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
+import Image from "next/image";
+import Head from "next/head";
 import React from "react";
 
 // =============================================================================
@@ -227,12 +229,86 @@ function ArticleView({
       (img) => img.imageType === "lifestyle" || img.imageType === "generated"
     ) || images[0];
 
+  // Generate JSON-LD structured data for the article
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.metaDescription || "",
+    image: featuredImage?.url,
+    datePublished: article.publishedAt
+      ? new Date(article.publishedAt * 1000).toISOString()
+      : new Date(article.createdAt * 1000).toISOString(),
+    dateModified: article.publishedAt
+      ? new Date(article.publishedAt * 1000).toISOString()
+      : new Date(article.createdAt * 1000).toISOString(),
+    author: {
+      "@type": "Organization",
+      name: site?.name || "Site",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: site?.name || "Site",
+      logo: site?.branding?.iconUrl
+        ? {
+            "@type": "ImageObject",
+            url: site.branding.iconUrl,
+          }
+        : undefined,
+    },
+  };
+
+  // Generate JSON-LD for products if present
+  const productsJsonLd = products.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: products.map((product, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "Product",
+        name: product.title,
+        image: product.imageUrl,
+        aggregateRating: product.rating ? {
+          "@type": "AggregateRating",
+          ratingValue: product.rating,
+          reviewCount: product.reviewCount || 0,
+        } : undefined,
+        offers: product.priceAmount ? {
+          "@type": "Offer",
+          price: product.priceAmount,
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        } : undefined,
+      },
+    })),
+  } : null;
+
+  const publishedTime = article.publishedAt
+    ? new Date(article.publishedAt * 1000).toISOString()
+    : new Date(article.createdAt * 1000).toISOString();
+
   return (
     <Layout
       site={site}
       title={article.title}
       description={article.metaDescription || undefined}
+      image={featuredImage?.url}
+      type="article"
+      publishedTime={publishedTime}
     >
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        />
+        {productsJsonLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd) }}
+          />
+        )}
+      </Head>
       <article
         className="pb-32"
         style={{ "--primary": primaryColor } as React.CSSProperties}
@@ -283,14 +359,14 @@ function ArticleView({
 
             {featuredImage && (
               <div className="max-w-5xl mx-auto animate-in fade-in zoom-in duration-1000">
-                <div className="rounded-[2rem] overflow-hidden shadow-2xl border border-border bg-muted ring-8 ring-background">
-                  <img
+                <div className="rounded-[2rem] overflow-hidden shadow-2xl border border-border bg-muted ring-8 ring-background relative aspect-[1200/630]">
+                  <Image
                     src={featuredImage.url}
                     alt={featuredImage.altText || article.title}
-                    className="w-full object-cover transition-transform duration-700 hover:scale-105"
-                    fetchPriority="high"
-                    width={1200}
-                    height={630}
+                    fill
+                    className="object-cover transition-transform duration-700 hover:scale-105"
+                    priority
+                    sizes="(max-width: 1280px) 100vw, 1280px"
                   />
                 </div>
               </div>
@@ -346,14 +422,13 @@ function ArticleView({
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-12">
-                          <div className="w-full md:w-2/5 aspect-square rounded-3xl overflow-hidden bg-white flex items-center justify-center border border-border/50 p-8 group-hover:bg-primary/5 transition-colors">
-                            <img
+                          <div className="w-full md:w-2/5 aspect-square rounded-3xl overflow-hidden bg-white flex items-center justify-center border border-border/50 p-8 group-hover:bg-primary/5 transition-colors relative">
+                            <Image
                               src={product.imageUrl}
                               alt={product.title}
-                              className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
-                              width={500}
-                              height={500}
-                              loading="lazy"
+                              fill
+                              className="object-contain transition-transform duration-500 group-hover:scale-110 p-8"
+                              sizes="(max-width: 768px) 100vw, 40vw"
                             />
                           </div>
                           <div className="flex-1 flex flex-col justify-center">

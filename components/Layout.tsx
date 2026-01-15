@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { Menu, X } from "lucide-react";
@@ -28,6 +29,9 @@ interface LayoutProps {
   site: Site | null;
   title?: string;
   description?: string;
+  image?: string;
+  type?: "website" | "article";
+  publishedTime?: string;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -35,6 +39,9 @@ export const Layout: React.FC<LayoutProps> = ({
   site,
   title,
   description,
+  image,
+  type = "website",
+  publishedTime,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const router = useRouter();
@@ -51,7 +58,9 @@ export const Layout: React.FC<LayoutProps> = ({
   // Generate meta title using template if available
   const metaTitle = React.useMemo(() => {
     if (site?.metaTemplates?.titlePattern && title) {
-      return site.metaTemplates.titlePattern.replace("{{title}}", title);
+      return site.metaTemplates.titlePattern
+        .replace("{{title}}", title)
+        .replace("{{siteName}}", siteName);
     }
     return title ? `${title} | ${siteName}` : siteName;
   }, [site?.metaTemplates?.titlePattern, title, siteName]);
@@ -60,6 +69,14 @@ export const Layout: React.FC<LayoutProps> = ({
     description ||
     site?.tagline ||
     "Expert reviews and trusted recommendations.";
+
+  // Construct canonical URL
+  const canonicalUrl = site?.domain
+    ? `https://${site.domain}${router.asPath.split("?")[0]}`
+    : undefined;
+
+  // OG image - use provided image, hero image, or fallback
+  const ogImage = image || site?.branding?.heroImageUrl;
 
   // Build font URLs for async loading
   const fontUrls = React.useMemo(() => {
@@ -94,6 +111,29 @@ export const Layout: React.FC<LayoutProps> = ({
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        {/* Canonical URL */}
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+        {/* Open Graph */}
+        <meta property="og:type" content={type} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDesc} />
+        {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+        <meta property="og:site_name" content={siteName} />
+        {ogImage && <meta property="og:image" content={ogImage} />}
+        {ogImage && <meta property="og:image:width" content="1200" />}
+        {ogImage && <meta property="og:image:height" content="630" />}
+        {type === "article" && publishedTime && (
+          <meta property="article:published_time" content={publishedTime} />
+        )}
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDesc} />
+        {ogImage && <meta name="twitter:image" content={ogImage} />}
+
         {/* Preconnect to Google Fonts for faster async loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -107,14 +147,14 @@ export const Layout: React.FC<LayoutProps> = ({
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 rounded-lg overflow-hidden transform group-hover:rotate-12 transition-transform">
+              <div className="w-8 h-8 rounded-lg overflow-hidden transform group-hover:rotate-12 transition-transform relative">
                 {iconUrl ? (
-                  <img
+                  <Image
                     src={iconUrl}
                     alt={`${siteName} icon`}
-                    className="w-full h-full object-cover"
-                    width={32}
-                    height={32}
+                    fill
+                    className="object-cover"
+                    sizes="32px"
                   />
                 ) : (
                   <div

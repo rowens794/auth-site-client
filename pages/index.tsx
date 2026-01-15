@@ -1,6 +1,7 @@
 import React from "react";
 import { GetStaticProps } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Layout } from "../components/Layout";
 import { ArticleCard } from "../components/ArticleCard";
 import {
@@ -31,13 +32,13 @@ export default function Home({ articles, site }: HomeProps) {
         {heroImageUrl ? (
           <>
             <div className="absolute inset-0">
-              <img
+              <Image
                 src={heroImageUrl}
                 alt={`${siteName} hero`}
-                className="w-full h-full object-cover"
-                fetchPriority="high"
-                width={1920}
-                height={1080}
+                fill
+                className="object-cover"
+                priority
+                sizes="100vw"
               />
               {/* Dark overlay for text readability */}
               <div className="absolute inset-0 bg-black/60" />

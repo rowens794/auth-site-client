@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Article, Site } from "../lib/db";
 import { Clock, Tag, ArrowRight } from "lucide-react";
 
@@ -28,27 +29,18 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
 
       <div className="aspect-video w-full overflow-hidden bg-muted relative">
         {featuredImage ? (
-          <img
+          <Image
             src={featuredImage}
             alt={article.title}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-            width={400}
-            height={225}
-            loading="lazy"
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/10 to-primary/5">
             <Tag className="w-12 h-12 text-primary/20" />
           </div>
         )}
-        <div className="absolute top-4 left-4">
-          <span
-            className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-lg"
-            style={{ backgroundColor: primaryColor }}
-          >
-            {article.articleType}
-          </span>
-        </div>
       </div>
 
       <div className="flex flex-1 flex-col p-8">

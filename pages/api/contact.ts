@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { saveContactMessage, getSiteId } from "../../lib/db";
+import { strictRateLimit } from "../../lib/rate-limit";
 
 type ResponseData = {
   success: boolean;
@@ -14,6 +15,10 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({ success: false, error: "Method not allowed" });
   }
+
+  // Apply rate limiting (5 requests per minute)
+  const allowed = await strictRateLimit(req, res);
+  if (!allowed) return;
 
   const { name, email, message } = req.body;
 

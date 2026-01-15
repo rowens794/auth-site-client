@@ -66,6 +66,20 @@ const STATIC_PAGE_SLUGS: Record<string, keyof StaticPages> = {
 };
 
 // =============================================================================
+// Reading Time Helper
+// =============================================================================
+
+function calculateReadingTime(htmlContent: string): number {
+  // Strip HTML tags to get plain text
+  const text = htmlContent.replace(/<[^>]*>/g, "");
+  // Count words (split by whitespace)
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  // Average reading speed: 200 words per minute
+  const minutes = Math.ceil(wordCount / 200);
+  return Math.max(1, minutes); // Minimum 1 minute
+}
+
+// =============================================================================
 // Product Badge Helper
 // =============================================================================
 
@@ -249,26 +263,12 @@ function ArticleView({
               </h1>
 
               <div className="flex flex-wrap items-center gap-8 text-sm text-muted-foreground mb-16 border-y border-border/50 py-6">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="h-12 w-12 rounded-full flex items-center justify-center text-white font-black text-lg shadow-lg"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    {site?.name?.charAt(0) || "S"}
-                  </div>
-                  <div>
-                    <span className="block font-bold text-foreground leading-none mb-1">
-                      {site?.name || "Site"} Editorial
-                    </span>
-                    <span className="text-xs">Expert Review Team</span>
-                  </div>
-                </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>
                     {article.publishedAt
-                      ? format(new Date(article.publishedAt), "MMMM d, yyyy")
-                      : format(new Date(article.createdAt), "MMMM d, yyyy")}
+                      ? format(new Date(article.publishedAt * 1000), "MMMM d, yyyy")
+                      : format(new Date(article.createdAt * 1000), "MMMM d, yyyy")}
                   </span>
                 </div>
                 <div
@@ -276,7 +276,7 @@ function ArticleView({
                   style={{ color: primaryColor }}
                 >
                   <Clock className="h-4 w-4" />
-                  <span>8 min read</span>
+                  <span>{calculateReadingTime(article.content)} min read</span>
                 </div>
               </div>
             </div>

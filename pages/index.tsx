@@ -213,6 +213,5 @@ export const getStaticProps: GetStaticProps = async () => {
       articles: JSON.parse(JSON.stringify(articlesWithImages)),
       site: JSON.parse(JSON.stringify(site)),
     },
-    revalidate: 60,
   };
 };

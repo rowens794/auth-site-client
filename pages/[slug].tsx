@@ -539,7 +539,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           inlineDisclosure: pageData.inlineDisclosure || null,
         },
       },
-      revalidate: 3600,
     };
   }
 
@@ -580,6 +579,5 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       images: JSON.parse(JSON.stringify(images)),
       products: JSON.parse(JSON.stringify(products)),
     },
-    revalidate: 3600,
   };
 };

@@ -1,9 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { Menu, X } from "lucide-react";
 import { Site } from "../lib/db";
+
+// Load Google Fonts asynchronously to avoid render blocking
+function useGoogleFonts(fonts: string[]) {
+  useEffect(() => {
+    if (fonts.length === 0) return;
+
+    fonts.forEach((fontUrl) => {
+      // Check if already loaded
+      const existing = document.querySelector(`link[href="${fontUrl}"]`);
+      if (existing) return;
+
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = fontUrl;
+      document.head.appendChild(link);
+    });
+  }, [fonts]);
+}
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -43,6 +61,25 @@ export const Layout: React.FC<LayoutProps> = ({
     site?.tagline ||
     "Expert reviews and trusted recommendations.";
 
+  // Build font URLs for async loading
+  const fontUrls = React.useMemo(() => {
+    const urls: string[] = [];
+    if (headingFont !== "Inter") {
+      urls.push(
+        `https://fonts.googleapis.com/css2?family=${headingFont.replace(/ /g, "+")}:wght@400;500;600;700;800;900&display=swap`
+      );
+    }
+    if (bodyFont !== "Inter" && bodyFont !== headingFont) {
+      urls.push(
+        `https://fonts.googleapis.com/css2?family=${bodyFont.replace(/ /g, "+")}:wght@400;500;600;700&display=swap`
+      );
+    }
+    return urls;
+  }, [headingFont, bodyFont]);
+
+  // Load fonts asynchronously to avoid render blocking
+  useGoogleFonts(fontUrls);
+
   return (
     <div
       className="min-h-screen flex flex-col selection:bg-primary selection:text-white"
@@ -57,26 +94,13 @@ export const Layout: React.FC<LayoutProps> = ({
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {/* Preconnect to Google Fonts for faster loading */}
+        {/* Preconnect to Google Fonts for faster async loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        {/* Google Fonts for custom typography */}
-        {headingFont !== "Inter" && (
-          <link
-            href={`https://fonts.googleapis.com/css2?family=${headingFont.replace(/ /g, "+")}:wght@400;500;600;700;800;900&display=swap`}
-            rel="stylesheet"
-          />
-        )}
-        {bodyFont !== "Inter" && bodyFont !== headingFont && (
-          <link
-            href={`https://fonts.googleapis.com/css2?family=${bodyFont.replace(/ /g, "+")}:wght@400;500;600;700&display=swap`}
-            rel="stylesheet"
-          />
-        )}
       </Head>
 
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md relative">

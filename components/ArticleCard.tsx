@@ -32,6 +32,9 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
             src={featuredImage}
             alt={article.title}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            width={400}
+            height={225}
+            loading="lazy"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/10 to-primary/5">

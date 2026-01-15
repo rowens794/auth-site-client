@@ -35,6 +35,9 @@ export default function Home({ articles, site }: HomeProps) {
                 src={heroImageUrl}
                 alt={`${siteName} hero`}
                 className="w-full h-full object-cover"
+                fetchPriority="high"
+                width={1920}
+                height={1080}
               />
               {/* Dark overlay for text readability */}
               <div className="absolute inset-0 bg-black/60" />

@@ -57,6 +57,13 @@ export const Layout: React.FC<LayoutProps> = ({
         <title>{metaTitle}</title>
         <meta name="description" content={metaDesc} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Preconnect to Google Fonts for faster loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         {/* Google Fonts for custom typography */}
         {headingFont !== "Inter" && (
           <link
@@ -82,6 +89,8 @@ export const Layout: React.FC<LayoutProps> = ({
                     src={iconUrl}
                     alt={`${siteName} icon`}
                     className="w-full h-full object-cover"
+                    width={32}
+                    height={32}
                   />
                 ) : (
                   <div

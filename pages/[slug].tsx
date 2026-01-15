@@ -288,6 +288,9 @@ function ArticleView({
                     src={featuredImage.url}
                     alt={featuredImage.altText || article.title}
                     className="w-full object-cover transition-transform duration-700 hover:scale-105"
+                    fetchPriority="high"
+                    width={1200}
+                    height={630}
                   />
                 </div>
               </div>
@@ -348,6 +351,9 @@ function ArticleView({
                               src={product.imageUrl}
                               alt={product.title}
                               className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110"
+                              width={500}
+                              height={500}
+                              loading="lazy"
                             />
                           </div>
                           <div className="flex-1 flex flex-col justify-center">
